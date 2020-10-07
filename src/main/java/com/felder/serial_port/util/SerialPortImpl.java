@@ -114,6 +114,7 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
         this.pesoBascula.setUm(this.filterString(strData.split("\\n")[0]).substring(this.filterString(strData.split("\\n")[0]).length() - 2).toUpperCase());
     }
 
+
     private String filterString(String str) {
         for (String string : SerialPortImpl.FILTER) {
             str = str.replaceAll(string, "");
@@ -144,13 +145,5 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     @Override
     public void setObject_1(Object obj) {
         this.txa = (JTextArea) obj;
-    }
-
-    private void pesoBascula() {
-        this.pesoBascula = new PesoBascula();
-        this.pesoBascula.setBascula(this.config.getBascula());
-        this.pesoBascula.setId(3);
-        this.pesoBascula.setPeso("22.00");
-        this.pesoBascula.setUm("KGM");
     }
 }

@@ -10,7 +10,7 @@ import java.net.URL;
 
 public class CallApiRestImpl implements ICallApiRest {
 
-    private static String END_POINT = "http://localhost:8080/weight/putWeight";
+    private static String END_POINT = "http://192.168.1.15:8080/weight/putWeight";
     private PesoBascula pesoBascula;
 
     @Override
