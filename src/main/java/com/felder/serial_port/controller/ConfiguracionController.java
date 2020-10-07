@@ -39,6 +39,7 @@ public class ConfiguracionController implements ActionListener {
         this.loadCbxBitsDatos();
         this.loadCbxBitsParada();
         this.loadCbxParidad();
+        this.loadCbxBascula();
     }
 
     private void loadConfiguracion() {
@@ -50,6 +51,7 @@ public class ConfiguracionController implements ActionListener {
                 vConfiguracion.getCbxBitsDatos().setSelectedItem(this.config.getDataBits().toString());
                 vConfiguracion.getCbxParidad().setSelectedItem(this.parityText(this.config.getParity()));
                 vConfiguracion.getCbxBitsParada().setSelectedItem(this.config.getStopBits().toString());
+                vConfiguracion.getCbxBascula().setSelectedItem(this.config.getBascula());
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vConfiguracion, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -102,12 +104,18 @@ public class ConfiguracionController implements ActionListener {
         vConfiguracion.getCbxBitsParada().addItem("2");
     }
 
+    private void loadCbxBascula() {
+        vConfiguracion.getCbxBascula().addItem("SWS_LP7510");
+        vConfiguracion.getCbxBascula().addItem("RHINO_I-PAG");
+    }
+
     private void save() {
         this.config.setPort(vConfiguracion.getCbxPuertos().getSelectedItem().toString());
         this.config.setBaudRate(Integer.valueOf(vConfiguracion.getCbxBitsSegundo().getSelectedItem().toString()));
         this.config.setDataBits(Integer.valueOf(vConfiguracion.getCbxBitsDatos().getSelectedItem().toString()));
         this.config.setParity(this.parity(vConfiguracion.getCbxParidad().getSelectedItem().toString()));
         this.config.setStopBits(Integer.valueOf(vConfiguracion.getCbxBitsParada().getSelectedItem().toString()));
+        this.config.setBascula(vConfiguracion.getCbxBascula().getSelectedItem().toString());
         try {
             this.serviceConfig.save(this.config);
             vConfiguracion.dispose();

@@ -1,14 +1,14 @@
-
 package com.felder.serial_port.model.pojo;
 
-
 public class Configuracion {
+
     private String port;
     private Integer baudRate;
     private Integer dataBits;
     private Integer stopBits;
     private Integer parity;
- 
+    private String bascula;
+
     public Integer getBaudRate() {
         return baudRate;
     }
@@ -41,13 +41,20 @@ public class Configuracion {
         this.parity = parity;
     }
 
-
     public String getPort() {
         return port;
     }
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getBascula() {
+        return bascula;
+    }
+
+    public void setBascula(String bascula) {
+        this.bascula = bascula;
     }
 
     @Override

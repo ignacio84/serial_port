@@ -42,6 +42,7 @@ public class PrincipalController implements ActionListener, MouseMotionListener,
         this.addListeners();
         this.propsTrayBar();
         this.loadConfiguracion();
+        this.onInit();
     }
 
     /*AGREGA ESCUCHADORES A CONTROLES DE LA VISTA*/
@@ -98,19 +99,12 @@ public class PrincipalController implements ActionListener, MouseMotionListener,
         if (e.getSource().equals(vPrincipal.getItmPortConfig())) {
             new ConfiguracionController();
             this.loadConfiguracion();
-//            System.out.println(this.config);
         } else if (e.getSource().equals(vPrincipal.getBtnIniciar())) {
-            this.openPort();
+            this.onStart();
         } else if (e.getSource().equals(vPrincipal.getBtnDetener())) {
             try {
-                vPrincipal.getLblEstatus().setText("SIN CONEXIÓN");
+                this.enabledStart();
                 this.serialPort.closeSerialPort();
-//                this.port.removeEventListener();
-//                this.port.closePort();
-                vPrincipal.getBtnIniciar().setEnabled(true);
-                vPrincipal.getBtnDetener().setEnabled(false);
-                vPrincipal.getItmPortConfig().setEnabled(true);
-                vPrincipal.getTxaBascula().setText("");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(vPrincipal, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -144,35 +138,57 @@ public class PrincipalController implements ActionListener, MouseMotionListener,
     }
 
     private void loadConfiguracion() {
-        vPrincipal.getBtnDetener().setEnabled(false);
         try {
             this.config = (Configuracion) this.serviceConfig.get();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(vPrincipal, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        if (this.config == null) {
-            vPrincipal.getBtnIniciar().setEnabled(false);
-        } else {
-            vPrincipal.getBtnIniciar().setEnabled(true);
+    }
+
+    private void onInit() {
+        this.enabledStart();
+        if (this.config != null) {
             this.openPort();
             vPrincipal.setState(1);
+        } else {
+            JOptionPane.showMessageDialog(vPrincipal, "Error al leer JSON", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    
+      private void onStart() {
+        this.enabledStart();
+        if (this.config != null) {
+            this.openPort();
+        } else {
+            JOptionPane.showMessageDialog(vPrincipal, "Error al leer JSON", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void disabledStart() {
+        vPrincipal.getBtnIniciar().setEnabled(false);
+        vPrincipal.getBtnDetener().setEnabled(true);
+        vPrincipal.getItmPortConfig().setEnabled(false);
+        vPrincipal.getLblEstatus().setText("CONECTADO EL PUERTO : " + this.config.getPort());
+    }
+
+    private void enabledStart() {
+        vPrincipal.getBtnIniciar().setEnabled(true);
+        vPrincipal.getBtnDetener().setEnabled(false);
+        vPrincipal.getItmPortConfig().setEnabled(true);
+        vPrincipal.getTxaBascula().setText("");
+        vPrincipal.getLblEstatus().setText("SIN CONEXIÓN");
     }
 
     private void openPort() {
         try {
-            vPrincipal.getLblEstatus().setText("CONECTADO EL PUERTO : " + this.config.getPort());
-            vPrincipal.getBtnIniciar().setEnabled(false);
-            vPrincipal.getBtnDetener().setEnabled(true);
-            vPrincipal.getItmPortConfig().setEnabled(false);
-            this.serialPort.setTrayIcon(trayIcon);
-            this.serialPort.setFrame(vPrincipal);
-            this.serialPort.setConfiguration(config);
-            this.serialPort.setTextArea(vPrincipal.getTxaBascula());
+            this.serialPort.setObject(trayIcon);
+            this.serialPort.setObject_1(vPrincipal.getTxaBascula());
+            this.serialPort.setObject_2(vPrincipal);
+            this.serialPort.setObject_3(config);
             this.serialPort.addEventListener();
+            this.disabledStart();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vPrincipal, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-
         }
     }
 
@@ -208,5 +224,4 @@ public class PrincipalController implements ActionListener, MouseMotionListener,
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
-
 }

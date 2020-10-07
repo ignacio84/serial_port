@@ -1,9 +1,11 @@
 package com.felder.serial_port.util;
 
 import com.felder.serial_port.model.pojo.Configuracion;
+import com.felder.serial_port.model.pojo.PesoBascula;
 import java.awt.Frame;
 import java.awt.TrayIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -13,7 +15,7 @@ import jssc.SerialPortList;
 
 public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
 
-    private static String FILTER[] = {" ", "GROSS", "kg", "Time:", "Date:", "ID.NO."};
+    private static String FILTER[] = {" ", "GROSS", "Time:", "Date:", "ID.NO.", "\\r\\n", "\\r", "\\n"};
     private static Integer BYTES_SIZE = 102;//TAMAÑO DEL BUFFER ENVIADO POR LA BASCULA
     private jssc.SerialPort port;
     private String strData;
@@ -21,6 +23,12 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     private JFrame frame;
     private TrayIcon trayIcon;
     private JTextArea txa;
+    private ICallApiRest apiRest;
+    private PesoBascula pesoBascula;
+
+    public SerialPortImpl() {
+        this.apiRest = new CallApiRestImpl();
+    }
 
     @Override
     public void addEventListener() throws Exception {
@@ -39,7 +47,6 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     }
 
     public void openSerialPort() throws Exception {
-
         this.port = new jssc.SerialPort(this.config.getPort());
         this.port.openPort();
         this.port.setParams(this.config.getBaudRate(), this.config.getDataBits(), this.config.getStopBits(), this.config.getParity());
@@ -58,8 +65,8 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     }
 
     @Override
-    public void setTrayIcon(TrayIcon trayIcon) {
-        this.trayIcon = trayIcon;
+    public void setObject(Object object) {
+        this.trayIcon = (TrayIcon) object;
     }
 
     @Override
@@ -73,41 +80,51 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     }
 
     @Override
-    public void setConfiguration(Configuracion config) {
-        this.config = config;
+    public void setObject_3(Object obj) {
+        this.config = (Configuracion) obj;
     }
 
     @Override
     public void serialEvent(SerialPortEvent event) {
-        System.out.println(event.getEventValue());
-        //CONFIGURACION PARA LA BASCULA
-        if (event.isRXCHAR() && event.getEventValue() == 95) {
+        if (event.isRXCHAR() && event.getEventValue() == this.BYTES_SIZE) {//bascula SWS_LP7510
             try {
-                this.strData = this.port.readString(95);
+                this.strData = this.port.readString(BYTES_SIZE);
                 this.txa.setText(this.strData);
-                System.out.println(this.strData);
-                System.out.println(this.filterString(strData));
-                //System.out.println("numero de saltos :"+strData.split("\\n").length);// 7 saltos de linea lectura bascula
-                System.out.println("numero de saltos :" + strData.split("\\n").length);
+                this.SWS_LP7510();
+                this.apiRest.setObject(this.pesoBascula);
+                this.apiRest.call();
                 if (this.frame.getState() == Frame.ICONIFIED) {
-                    trayIcon.displayMessage("Peso recibido desde bascula", this.filterString(strData), TrayIcon.MessageType.NONE);
+                    trayIcon.displayMessage("Peso recibido desde bascula", strData, TrayIcon.MessageType.NONE);
                 }
-            } catch (SerialPortException ex) {
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 System.out.println(ex.getMessage());
             }
         }
+    }
+    
+   //bascula SWS_LP7510
+    private void SWS_LP7510() {
+        this.pesoBascula = new PesoBascula();
+        this.pesoBascula.setBascula(this.config.getBascula());
+        this.pesoBascula.setPeso(this.filterString(strData.split("\\n")[0]).substring(0, this.filterString(strData.split("\\n")[0]).length() - 2));
+        this.pesoBascula.setHora(this.filterString(strData.split("\\n")[1]));
+        this.pesoBascula.setFecha(this.filterString(strData.split("\\n")[2]));
+        this.pesoBascula.setId(Integer.valueOf(this.filterString(strData.split("\\n")[3])));
+        this.pesoBascula.setUm(this.filterString(strData.split("\\n")[0]).substring(this.filterString(strData.split("\\n")[0]).length() - 2).toUpperCase());
     }
 
     private String filterString(String str) {
         for (String string : SerialPortImpl.FILTER) {
             str = str.replaceAll(string, "");
         }
+        str.trim();
         return str;
     }
 
     @Override
-    public void setFrame(JFrame frame) {
-        this.frame = frame;
+    public void setObject_2(Object obj) {
+        this.frame = (JFrame) obj;
     }
 
     @Override
@@ -125,7 +142,15 @@ public class SerialPortImpl implements ISerialPort, SerialPortEventListener {
     }
 
     @Override
-    public void setTextArea(JTextArea txa) {
-        this.txa = txa;
+    public void setObject_1(Object obj) {
+        this.txa = (JTextArea) obj;
+    }
+
+    private void pesoBascula() {
+        this.pesoBascula = new PesoBascula();
+        this.pesoBascula.setBascula(this.config.getBascula());
+        this.pesoBascula.setId(3);
+        this.pesoBascula.setPeso("22.00");
+        this.pesoBascula.setUm("KGM");
     }
 }

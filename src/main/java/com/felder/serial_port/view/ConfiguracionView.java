@@ -18,6 +18,7 @@ public class ConfiguracionView extends JDialogAbstract {
     private JComboBox cbxBitsDatos = new JComboBox();
     private JComboBox cbxParidad = new JComboBox();
     private JComboBox cbxBitsParada = new JComboBox();
+    private JComboBox cbxBascula= new JComboBox();
 
     /*SE DECLARAN CONTROLES JButton*/
     public JButton btnGuardar = new JButton("GUARDAR");
@@ -53,7 +54,9 @@ public class ConfiguracionView extends JDialogAbstract {
         this.propsJComboBox(this.cbxParidad, 220, 190, 180, 30);
         this.createAddJLabel("Bits de parada : ", SwingConstants.RIGHT, 30, 240, 180, 30);
         this.propsJComboBox(this.cbxBitsParada, 220, 240, 180, 30);
-        this.propsJButton(this.btnGuardar, 170, 300, 180, 30);
+        this.createAddJLabel("Bascula : ", SwingConstants.RIGHT, 30, 290, 180, 30);
+        this.propsJComboBox(this.cbxBascula, 220, 290, 180, 30);
+        this.propsJButton(this.btnGuardar, 170, 330, 180, 30);
         this.createAddJPanel(5, 5, 485, 360);
         this.createAddJPanel(5, 5, 485, 30);
         this.repaint();
@@ -83,4 +86,7 @@ public class ConfiguracionView extends JDialogAbstract {
         return cbxBitsParada;
     }
 
+    public JComboBox getCbxBascula() {
+        return cbxBascula;
+    }
 }

@@ -13,17 +13,17 @@ public interface ISerialPort {
 
     public jssc.SerialPort getPort();
 
-    public void setTrayIcon(TrayIcon trayIcon);
+    public void setObject(Object obj);
     
-    public void setTextArea(JTextArea txa);
+    public void setObject_1(Object obj);
+    
+    public void setObject_2(Object obj);
+    
+    public void setObject_3(Object obj);
 
     public void writeSerialPort();
 
     public void readSerialPort();
-
-    public void setConfiguration(Configuracion config);
-
-    public void setFrame(JFrame frame);
 
     public void closeSerialPort() throws Exception;
 
